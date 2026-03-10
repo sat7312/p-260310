@@ -1,5 +1,6 @@
 package com.back.domain.post.post.controller;
 
+import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,14 @@ public class ApiV1PoserController {
 
     @GetMapping("/api/v1/posts")
     @ResponseBody
-    public List<Post> list() {
+    public List<PostDto> list() {
         List<Post> result = postService.findAll();
 
-        return result;
+        List<PostDto> postDtoList = result.stream()
+                .map(p -> (
+                        new PostDto(p.getId(), p.getTitle(), p.getContent(), p.getCreateDate(), p.getModifyDate())))
+                .toList();
+
+        return postDtoList;
     }
 }
