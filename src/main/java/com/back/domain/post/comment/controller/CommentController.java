@@ -19,13 +19,14 @@ public class CommentController {
     private final PostService postService;
 
     record WriteRequestForm(
-            @NotBlank(message = "01-content-댓글 내용은 필수입니다.") @Size(min = 2, max = 100, message = "02-content-댓글 내용은 2자 이상 100자 이하로 입력해주세요.") String content) {
+            @NotBlank(message = "01-content-댓글 내용은 필수입니다.")
+            @Size(min = 2, max = 100, message = "02-content-댓글 내용은 2자 이상 100자 이하로 입력해주세요.")
+            String content) {
     }
 
     @PostMapping("/posts/{postId}/comments/write")
     @Transactional
     public String writeComment(@PathVariable int postId, @Valid WriteRequestForm form) {
-
 
         Post post = postService.findById(postId).get();
         post.addComment(form.content);
@@ -54,7 +55,8 @@ public class CommentController {
     record ModifyRequestForm(
             @NotBlank(message = "01-content-댓글 내용은 필수입니다.")
             @Size(min = 2, max = 100, message = "02-content-댓글 내용은 2자 이상 100자 이하로 입력해주세요.")
-            String content) {}
+            String content) {
+    }
 
     @PutMapping("/posts/{postId}/comments/{commentId}/modify")
     @Transactional
