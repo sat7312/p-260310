@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.jmx.ParentAwareNamingStrategy;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +40,7 @@ public class ApiV1PostController {
         return new PostDto(post);
     }
 
-    record postWriteReqBody(
+    record PostWriteReqBody(
             @NotBlank(message = "01-title-제목은 필수입니다.")
             @Size(min = 2, max = 10, message = "03-title-제목은 2자 이상 10자 이하로 입력해주세요.")
             String title,
@@ -56,14 +55,14 @@ public class ApiV1PostController {
     }
 
     @PostMapping
-    public ResponseEntity<RsData<PostWriteResBody>> write(@RequestBody @Valid postWriteReqBody reqBody) {
+    public RsData<PostWriteResBody> write(@RequestBody @Valid PostWriteReqBody reqBody) {
         Post post = postService.write(reqBody.title, reqBody.content);
         long postsCount = postService.count();
 
-        RsData<PostWriteResBody> rsData = new RsData<>("%d번 글이 성공적으로 작성되었습니다.".formatted(post.getId()),
-                "201-1", new PostWriteResBody(new PostDto(post), postsCount));
-
-        return ResponseEntity.status(201).body(rsData);
+        return new RsData<>(
+                "%d번 글이 성공적으로 작성되었습니다.".formatted(post.getId()),  "201-1",
+                new PostWriteResBody(new PostDto(post), postsCount)
+        );
     }
 
     @DeleteMapping("/{id}")
