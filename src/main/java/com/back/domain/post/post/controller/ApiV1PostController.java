@@ -12,7 +12,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-public class ApiV1PoserController {
+public class ApiV1PostController {
 
     private final PostService postService;
 
@@ -22,7 +22,7 @@ public class ApiV1PoserController {
         List<Post> result = postService.findAll();
 
         List<PostDto> postDtoList = result.stream()
-                .map(Post::toDto)
+                .map(PostDto::new)
                 .toList();
 
         return postDtoList;
