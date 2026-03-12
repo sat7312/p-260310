@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.jmx.ParentAwareNamingStrategy;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,7 +52,10 @@ public class ApiV1PostController {
     ) {
     }
 
-    record PostWriteResBody(PostDto postDto, long postsCount) {
+    record PostWriteResBody(
+            PostDto postDto,
+            long postsCount
+    ) {
     }
 
     @PostMapping
@@ -65,9 +69,41 @@ public class ApiV1PostController {
         );
     }
 
+    record PostModifyReqBody(
+            @NotBlank(message = "01-title-제목은 필수입니다.")
+            @Size(min = 2, max = 10, message = "03-title-제목은 2자 이상 10자 이하로 입력해주세요.")
+            String title,
+
+            @NotBlank(message = "02-content-내용은 필수입니다.")
+            @Size(min = 2, max = 100, message = "04-content-내용은 2자 이상 100자 이하로 입력해주세요.")
+            String content
+    ) {
+    }
+
+    record PostModifyResBody(
+            PostDto postDto
+    ) {
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public RsData<PostModifyResBody> modify(
+            @PathVariable int id,
+            @RequestBody @Valid PostModifyReqBody reqBody
+    ) {
+        Post post = postService.modify(id, reqBody.title, reqBody.content);
+
+        return new RsData<>(
+                "%d번 글이 성공적으로 수정되었습니다.".formatted(post.getId()), "200-1",
+                new PostModifyResBody(new PostDto(post))
+        );
+    }
+
     @DeleteMapping("/{id}")
     public RsData<Void> delete(@PathVariable int id) {
         postService.deleteById(id);
-        return new RsData<>("%d번 글이 삭제되었습니다.".formatted(id), "204-1");
+        return new RsData<>("%d번 글이 삭제되었습니다.".formatted(id),
+                "200-1"
+        );
     }
 }
