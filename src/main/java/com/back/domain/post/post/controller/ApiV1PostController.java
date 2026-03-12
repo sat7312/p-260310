@@ -60,7 +60,7 @@ public class ApiV1PostController {
         long postsCount = postService.count();
 
         return new RsData<>(
-                "%d번 글이 성공적으로 작성되었습니다.".formatted(post.getId()),  "201-1",
+                "%d번 글이 성공적으로 작성되었습니다.".formatted(post.getId()), "201-1",
                 new PostWriteResBody(new PostDto(post), postsCount)
         );
     }
