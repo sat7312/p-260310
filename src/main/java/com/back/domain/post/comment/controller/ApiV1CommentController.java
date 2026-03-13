@@ -30,7 +30,7 @@ public class ApiV1CommentController {
         Post post = postService.findById(postId).get();
         List<Comment> comments = post.getComments();
 
-        List<CommentDto> commentDtoList = comments.stream()
+        List<CommentDto> commentDtoList = comments.reversed().stream()
                 .map(CommentDto::new)
                 .toList();
 
@@ -45,18 +45,6 @@ public class ApiV1CommentController {
         return new CommentDto(comment);
     }
 
-    @DeleteMapping("/{commentId}")
-    @Transactional
-    public RsData<CommentDto> delete(@PathVariable int postId, @PathVariable int commentId) {
-        Post post = postService.findById(postId).get();
-        Comment comment = post.findCommentById(commentId).get();
-        post.deleteComment(commentId);
-
-        return new RsData<>("%d번 댓글이 삭제되었습니다.".formatted(commentId),
-                "204-1",
-                new CommentDto(comment)
-        );
-    }
 
     record CommentWriteReqBody(
             @NotBlank(message = "02-content-내용은 필수입니다.")
@@ -76,15 +64,56 @@ public class ApiV1CommentController {
             @PathVariable int postId,
             @RequestBody @Valid CommentWriteReqBody reqBody
     ) {
+
         Post post = postService.findById(postId).get();
         Comment comment = post.addComment(reqBody.content);
 
         postService.flush();
 
         return new RsData<>(
-                "%d번 댓글이 성공적으로 작성되었습니다.".formatted(comment.getId()),
+                "%d번 댓글이 생성되었습니다.".formatted(comment.getId()),
                 "201-1",
-                new CommentWriteResBody(new CommentDto(comment))
+                new CommentWriteResBody(
+                        new CommentDto(comment)
+                )
+        );
+    }
+
+    @DeleteMapping("/{commentId}")
+    @Transactional
+    public RsData<CommentDto> delete(
+            @PathVariable int postId,
+            @PathVariable int commentId
+    ) {
+        Post post = postService.findById(postId).get();
+        Comment comment = post.findCommentById(commentId).get();
+        post.deleteComment(commentId);
+
+        return new RsData<>(
+                "%d번 댓글이 삭제되었습니다.".formatted(commentId),
+                "200-1",
+                new CommentDto(comment)
+        );
+    }
+
+    record CommentModifyReqBody(
+            String content
+    ){}
+
+    @PutMapping("/{commentId}")
+    @Transactional
+    public RsData<Void> modify(
+            @PathVariable int postId,
+            @PathVariable int commentId,
+            @RequestBody CommentModifyReqBody reqBody
+    ) {
+
+        Post post = postService.findById(postId).get();
+        post.modifyComment(commentId, reqBody.content);
+
+        return new RsData<>(
+                "%d번 댓글이 수정되었습니다.".formatted(1),
+                "200-1"
         );
     }
 }
