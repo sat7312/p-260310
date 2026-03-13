@@ -21,7 +21,6 @@ public class ApiV1PostController {
     private final PostService postService;
 
     @GetMapping
-    @ResponseBody
     public List<PostDto> list() {
         List<Post> result = postService.findAll();
 
@@ -33,7 +32,6 @@ public class ApiV1PostController {
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public PostDto detail(@PathVariable int id) {
         Post post = postService.findById(id).get();
         return new PostDto(post);
